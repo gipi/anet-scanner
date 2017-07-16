@@ -214,6 +214,8 @@ for x in xrange(pcb_size[0]/STEP):
 
         #raw_input('just before the photo')
         cam.save_frame('shoots/frame_%d_%d.png' % (x, y))
+        cam.save_frame('shoots/frame_%d_%d.png' % (x, y))
+        cam.save_frame('shoots/frame_%d_%d.png' % (x, y))
         time.sleep(SLEEP_AFTER)
 
 printer.write('G1 X0 Y0\n')
