@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+'''
+TODO: try https://github.com/duanhongyi/pyv4l2
+'''
 import sys
 import array
 import fcntl
@@ -30,8 +33,13 @@ pygame.camera.init()
 pcb_size = (int(sys.argv[2]), int(sys.argv[3]))
 
 class VideoCapture(object):
+    '''
+    This is a class for capturing images using the V4L2 APIs via python binding
+    but doesn't work :P
+    '''
     # see <https://linuxtv.org/downloads/v4l-dvb-apis/uapi/v4l/capture.c.html>
     # https://jayrambhia.wordpress.com/2013/07/03/capture-images-using-v4l2-on-linux/
+    # https://linuxtv.org/downloads/v4l-dvb-apis/
     def __init__(self, devicepath):
         self.devicepath = devicepath
 
@@ -97,6 +105,9 @@ class VideoCapture(object):
 
 # http://www.pygame.org/docs/tut/CameraIntro.html
 class Capture(object):
+    '''
+    This captures frames using the pygame's API.
+    '''
     def __init__(self):
         self.size = (640,480)
         # create a display surface. standard pygame stuff
