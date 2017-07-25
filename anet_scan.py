@@ -186,9 +186,6 @@ printer = serial.Serial(device_path, 250000)
 # give the webcam to adjust the brightness and focus
 time.sleep(5)
 
-cam.save_frame('/tmp/porcodio.png')
-cam.save_frame('/tmp/porcodio.png')
-
 banner = ""
 while printer.in_waiting > 0:
     banner += printer.readline()
