@@ -13,6 +13,9 @@ $ python anet_scan.py <serial device path> <width in mm> <height in mm>
  ...
 ```
 
+I advice to move manually the printer's head and position it so that the microscope
+is at the lower left. The scan is done one columns at times, from the left to the right.
+
 the resulting images are in the ``shoots/`` directory.
 
 ## Microscope holder
