@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
 	print locals()
 
-	size = 200
+	size = 400
 
 	images = load_images(start, end, size=size)
 
@@ -57,15 +57,25 @@ if __name__ == '__main__':
 		images_row = images[idx_x]
 		for idx_y in xrange(end[1], start[1] - 1, -1):
 			src = images_row[idx_y]
-			M = cv2.getRotationMatrix2D((0, 0), -4, 1)
-			src = cv2.warpAffine(src, M, (src.shape[1], src.shape[0]))
+			#M = cv2.getRotationMatrix2D((0, 0), -4, 1)
+			#src = cv2.warpAffine(src, M, (src.shape[1], src.shape[0]))
 			print 'shape at %d %d: (%d, %d)' % (idx_x, idx_y, shape[0], shape[1])
 			#import ipdb;ipdb.set_trace()
-			x = idx_x*(shape[1] + deltaX)
+			x = idx_x*shape[1] + deltaX * idx_y
+			if x < 0: x= 0
 			y = canvas.shape[0] - (idx_y + 1)*(shape[0]) + idx_y*deltaY
 
 			canvas[y:y + shape[0], x:x + shape[1]] = src
 
+	# https://stackoverflow.com/questions/13538748/crop-black-edges-with-opencv
+	gray = cv2.cvtColor(canvas, cv2.COLOR_BGR2GRAY)
+	_, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
 
-	cv2.imshow('Editing window', canvas)
+	_img, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+	cnt = contours[0]
+	x, y, w, h = cv2.boundingRect(cnt)
+
+	crop = canvas[y:y+h ,x:x+w]
+
+	cv2.imshow('Editing window', crop)
 	cv2.waitKey(0)
