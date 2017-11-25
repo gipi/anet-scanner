@@ -9,7 +9,7 @@ class Stitcher:
 		self.isv3 = imutils.is_cv3()
 
 	def stitch(self, images, ratio=0.75, reprojThresh=4.0,
-		showMatches=False):
+		showMatches=False, horizontal=True):
 		# unpack the images, then detect keypoints and extract
 		# local invariant descriptors from them
 		(imageB, imageA) = images
@@ -28,8 +28,9 @@ class Stitcher:
 		# otherwise, apply a perspective warp to stitch the images
 		# together
 		(matches, H, status) = M
-		result = cv2.warpPerspective(imageA, H,
-			(imageA.shape[1] + imageB.shape[1], imageA.shape[0]))
+		width  = imageA.shape[1] + imageB.shape[1] if horizontal else imageB.shape[1]
+		height = imageA.shape[0]                   if horizontal else imageA.shape[0] + imageB.shape[0]
+		result = cv2.warpPerspective(imageA, H, (width, height))
 		result[0:imageB.shape[0], 0:imageB.shape[1]] = imageB
 
 		# check to see if the keypoint matches should be visualized
