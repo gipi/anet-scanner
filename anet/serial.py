@@ -1,15 +1,62 @@
+'''
+For more information about GCODE take a look at <http://reprap.org/wiki/G-code>.
+'''
 from __future__ import absolute_import
 import array
 import ctypes
 import fcntl
 import logging
+import time
 import os
 import serial
+from cmd import Cmd
 
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+class SerialCmd(Cmd):
+    def __init__(self, printer):
+        Cmd.__init__(self)
+        self.printer = printer
+
+    def _query(self, msg):
+        self.printer.write('%s\r\n' % msg)
+
+        # we need to wait a little bit in order
+        # to receive the output
+        while self.printer.in_waiting == 0:
+            time.sleep(0.5)
+
+        response = ''
+        while self.printer.in_waiting > 0:
+            response += self.printer.readline()
+            #time.sleep(0.5)
+
+        return response
+
+    def do_query(self, args):
+        print self._query(args)
+
+    def do_firmware(self, args):
+        '''Get firmware version and capabilities'''
+        print self._query('M115')
+
+    def do_origin(self, args):
+        '''Move to origin the printer head'''
+        self.printer.write('G28\n')
+        response = self.printer.readline()
+
+        print response
+
+    def do_sdcard(self, args):
+        print self._query('M20')
+
+    def do_quit(self, args):
+        '''quit the shell'''
+        raise SystemExit
 
 
 # from /usr/lib/python2.7/site-packages/serial/serialposix.py
@@ -54,5 +101,9 @@ def open_serial(device_path='/dev/ttyACM0', baudrate=250000):
 
 if __name__ == '__main__':
     device = open_serial()
+
+    shell = SerialCmd(device)
+    shell.prompt = 'anet> '
+    shell.cmdloop('starting...')
 
     device.close()
