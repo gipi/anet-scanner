@@ -7,17 +7,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    qDebug() << "looking for cameras";
+    qDebug() << " [I] looking for cameras";
 
     QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
     qDebug() << " [I] found " << cameras.count();
 
+    QCamera* camera;
+
     foreach (const QCameraInfo &cameraInfo, cameras) {
         qDebug() << " [I] " << cameraInfo.deviceName() << " " << cameraInfo.description();
-        if (cameraInfo.deviceName() == "mycamera")
-            QCamera* camera = new QCamera(cameraInfo);
+            camera = new QCamera(cameraInfo);
     }
+
+    camera->setViewfinder(ui->monitor);
+    camera->start();
 }
 
 MainWindow::~MainWindow() {

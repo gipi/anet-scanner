@@ -28,10 +28,11 @@
       <enum>QLayout::SetMaximumSize</enum>
      </property>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout"/>
-     </item>
-     <item>
-      <widget class="QGraphicsView" name="monitor"/>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QVideoWidget" name="monitor" native="true"/>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>
@@ -42,7 +43,7 @@
      <x>0</x>
      <y>0</y>
      <width>859</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -57,6 +58,14 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QVideoWidget</class>
+   <extends>QWidget</extends>
+   <header>qvideowidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
