@@ -34,19 +34,24 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->menuBar->addAction(videoDeviceAction);
     }
 
-    camera->setViewfinder(ui->monitor);
+    //connect(camera, &QCameraImageCapture::imageCaptured, this, &Camera::processCapturedImage);
 
+    //camera->setViewfinder(ui->monitor);
+    CalibrationEncoder* ce = new CalibrationEncoder();
+    camera->setViewfinder(ce);
     /*
      * Here we use a VideoProbe instance to manipulate
      * the frame before visualization
      *
      * See <https://doc.qt.io/qt-5/videooverview.html>
      */
-    QVideoProbe* videoProbe = new QVideoProbe(this);
+    /*QVideoProbe* videoProbe = new QVideoProbe(this);
     if (videoProbe->setSource(camera)) {
         connect(videoProbe, &QVideoProbe::videoFrameProbed,
                 this, &MainWindow::align);
-    }
+    }*/
+    connect(ce, &CalibrationEncoder::videoFrameProcessed,
+            ui->monitor, &CalibrationWidget::updateFrame);
     camera->start();
 }
 
@@ -56,19 +61,27 @@ MainWindow::~MainWindow() {
 
 void MainWindow::align(const QVideoFrame &orig_frame) {
     qDebug() << orig_frame;
-    QVideoFrame frame(orig_frame);
+    QVideoFrame* frame = new QVideoFrame(orig_frame);
 
-    if (!frame.map(QAbstractVideoBuffer::ReadWrite)) {
+    if (true) {
+        qDebug() << "is true!!!!";
+    }
+
+    if (!frame->map(QAbstractVideoBuffer::ReadWrite)) {
         qDebug() << " [E] failed to map";
        return;
     }
 
     // now we can act on the bytes
-    uchar* buffer = frame.bits();
+    uchar* buffer = frame->bits();
 
-    for (unsigned int cycle = 0 ; cycle < 100 ; cycle++) {
+    if (!frame->isWritable()) {
+        qDebug() << "no wrutabe";
+    }
+
+    for (unsigned int cycle = 0 ; cycle < 1000 ; cycle++) {
         buffer[cycle] = 0xff;
     }
 
-    frame.unmap();
+    frame->unmap();
 }

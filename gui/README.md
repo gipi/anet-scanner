@@ -8,6 +8,8 @@ Simple QT5 interface to handle scanning.
 
 ## Links
 
+ - https://doc.qt.io/qt-5/videooverview.html
  - https://doc.qt.io/qt-5/cameraoverview.html
  - https://doc.qt.io/qt-5.10/multimediaoverview.html
  - https://doc.qt.io/qt-5/videooverview.html
+ - https://github.com/bakhtiyarov/QCameraExample

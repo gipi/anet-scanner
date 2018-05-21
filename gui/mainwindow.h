@@ -9,6 +9,8 @@
 #include <QAction>
 #include <QVideoProbe>
 
+#include "calibrationencoder.h"
+
 
 namespace Ui {
 class MainWindow;

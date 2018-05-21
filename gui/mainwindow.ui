@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>859</width>
-    <height>464</height>
+    <width>887</width>
+    <height>636</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QVideoWidget" name="monitor" native="true"/>
+        <widget class="CalibrationWidget" name="monitor" native="true"/>
        </item>
       </layout>
      </item>
@@ -42,7 +42,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>859</width>
+     <width>887</width>
      <height>22</height>
     </rect>
    </property>
@@ -60,9 +60,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>QVideoWidget</class>
+   <class>CalibrationWidget</class>
    <extends>QWidget</extends>
-   <header>qvideowidget.h</header>
+   <header>calibrationwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
