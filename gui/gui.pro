@@ -24,15 +24,54 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
         mainwindow.cpp \
     calibrationwidget.cpp \
-    calibrationencoder.cpp
+    calibrationencoder.cpp \
+    scannerconfig.cpp
+
 
 HEADERS += \
         mainwindow.h \
     calibrationwidget.h \
-    calibrationencoder.h
+    calibrationencoder.h \
+    scannerconfig.h
 
 FORMS += \
         mainwindow.ui
+
+
+# Here we are creating two different configuration build
+# for the project
+#
+# Use the following to generate the test app and run it
+#
+#   $ qmake /path/to/project "CONFIG+=test"
+#   $ make check
+#
+# For more info look at the following links
+# - https://stackoverflow.com/questions/12154980/how-to-structure-project-while-unit-testing-qt-app-by-qtestlib
+# - http://xilexio.org/?p=125
+
+test{
+    message(Configuring test build...)
+
+    TEMPLATE = app
+    TARGET = tests
+
+    CONFIG += testcase
+    QT += testlib
+
+    HEADERS += \
+        tests/shootcomposertest.h \
+        tests/scannerconfigtest.h
+
+    SOURCES += \
+        tests/test_main.cpp \
+        tests/shootcomposertest.cpp \
+        tests/scannerconfigtest.cpp
+}else{
+    message(Configuring normal build...)
+
+    SOURCES += \
+        main.cpp
+}
