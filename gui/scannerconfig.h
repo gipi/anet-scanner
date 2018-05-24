@@ -22,6 +22,12 @@ class ScannerConfig
 {
 public:
     ScannerConfig(const QString&);
+    ScannerConfig(unsigned int columns, unsigned int rows, unsigned int overlap_x=0, unsigned int overlap_y=0);
+
+    unsigned int columns();
+    unsigned int rows();
+    unsigned int overlapX();
+    unsigned int overlapY();
 private:
     unsigned int m_cols;
     unsigned int m_rows;

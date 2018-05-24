@@ -10,6 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = gui
 TEMPLATE = app
+DESTDIR = build
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -27,14 +28,16 @@ SOURCES += \
         mainwindow.cpp \
     calibrationwidget.cpp \
     calibrationencoder.cpp \
-    scannerconfig.cpp
+    scannerconfig.cpp \
+    shootcomposer.cpp
 
 
 HEADERS += \
         mainwindow.h \
     calibrationwidget.h \
     calibrationencoder.h \
-    scannerconfig.h
+    scannerconfig.h \
+    shootcomposer.h
 
 FORMS += \
         mainwindow.ui
@@ -69,6 +72,14 @@ test{
         tests/test_main.cpp \
         tests/shootcomposertest.cpp \
         tests/scannerconfigtest.cpp
+
+# https://larry-price.com/blog/2013/11/14/copy-data-using-qmake/
+    FIXTURES += \
+        tests/fixtures/
+    QMAKE_POST_LINK += $$quote(cp -rf $${PWD}/$${FIXTURES} $$DESTDIR)
+    QMAKE_CLEAN += -r $$FIXTURES
+
+
 }else{
     message(Configuring normal build...)
 

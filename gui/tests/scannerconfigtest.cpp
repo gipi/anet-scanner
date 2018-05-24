@@ -19,7 +19,7 @@ void ScannerConfigTest::cleanupTestCase()
 
 void ScannerConfigTest::testWithoutFile()
 {
-    ScannerConfig config();
+    ScannerConfig config(10, 20);
 }
 
 void ScannerConfigTest::testReadFile()
