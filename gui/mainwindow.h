@@ -24,9 +24,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-public slots:
-    void align(const QVideoFrame& frame);
-
 private:
     Ui::MainWindow *ui;
 };

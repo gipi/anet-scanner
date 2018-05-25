@@ -59,29 +59,3 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::align(const QVideoFrame &orig_frame) {
-    qDebug() << orig_frame;
-    QVideoFrame* frame = new QVideoFrame(orig_frame);
-
-    if (true) {
-        qDebug() << "is true!!!!";
-    }
-
-    if (!frame->map(QAbstractVideoBuffer::ReadWrite)) {
-        qDebug() << " [E] failed to map";
-       return;
-    }
-
-    // now we can act on the bytes
-    uchar* buffer = frame->bits();
-
-    if (!frame->isWritable()) {
-        qDebug() << "no wrutabe";
-    }
-
-    for (unsigned int cycle = 0 ; cycle < 1000 ; cycle++) {
-        buffer[cycle] = 0xff;
-    }
-
-    frame->unmap();
-}
