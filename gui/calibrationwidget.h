@@ -16,6 +16,9 @@ signals:
 
 public slots:
     void updateFrame(const QVideoFrame&);
+    virtual void paintEvent(QPaintEvent* event);
+private:
+    QImage* m_image;
 };
 
 #endif // CALIBRATIONWIDGET_H
