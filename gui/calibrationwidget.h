@@ -18,7 +18,7 @@ public slots:
     void updateFrame(const QVideoFrame&);
     virtual void paintEvent(QPaintEvent* event);
 private:
-    QImage* m_image;
+    QImage* m_image = NULL;
 };
 
 #endif // CALIBRATIONWIDGET_H
