@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
+#ifdef GUI_DEBUG
+    qDebug() << "DEFINED";
+#endif
     qDebug() << " [I] looking for cameras";
 
     QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
