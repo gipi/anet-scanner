@@ -17,7 +17,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
 
-    qDebug() << " [I] found " << cameras.count() << " camera(s)";
+    unsigned int cameras_n = cameras.count();
+
+    qDebug() << " [I] found " << cameras_n << " camera(s)";
+
+    if (cameras_n < 1)
+        return;
 
     QCamera* camera;
 
