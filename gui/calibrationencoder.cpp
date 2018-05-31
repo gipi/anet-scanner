@@ -15,7 +15,6 @@ QList<QVideoFrame::PixelFormat> CalibrationEncoder::supportedPixelFormats(
 }
 
 bool CalibrationEncoder::present(const QVideoFrame &frame) {
-    qDebug() << " [I] present(): " << frame;
 
     emit videoFrameProcessed(frame);
 

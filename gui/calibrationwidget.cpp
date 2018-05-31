@@ -29,7 +29,6 @@ void CalibrationWidget::updateFrame(const QVideoFrame &frame) {
                                frame.bytesPerLine(),
                                imageFormat);
     f.unmap();
-    qDebug() << *this->m_image;
 
     this->update();
 }
@@ -39,7 +38,6 @@ void CalibrationWidget::paintEvent(QPaintEvent *event)
     if (this->m_image == NULL) {
         return;
     }
-    qDebug() << " [I] " << __FUNCTION__;
 
     QPainter painter(this);
 
