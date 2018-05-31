@@ -10,6 +10,7 @@
 #include <QVideoProbe>
 
 #include "calibrationencoder.h"
+#include "printercontroller.h"
 
 
 namespace Ui {
@@ -26,6 +27,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    PrinterController* m_thread;
 };
 
 #endif // MAINWINDOW_H

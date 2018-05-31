@@ -1,7 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "printercontroller.h"
+
 
 Q_DECLARE_METATYPE(QCameraInfo) // like magic
+
 
 // https://stackoverflow.com/questions/23083352/stream-webcam-video-no-audio-to-a-widget-in-qt5
 MainWindow::MainWindow(QWidget *parent) :
@@ -53,6 +56,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ce, &CalibrationEncoder::videoFrameProcessed,
             ui->monitor, &CalibrationWidget::updateFrame);
     camera->start();
+
+    this->m_thread = new PrinterController;
+    this->m_thread->start();
 }
 
 MainWindow::~MainWindow() {

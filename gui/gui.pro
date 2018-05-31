@@ -29,7 +29,8 @@ SOURCES += \
     calibrationwidget.cpp \
     calibrationencoder.cpp \
     scannerconfig.cpp \
-    shootcomposer.cpp
+    shootcomposer.cpp \
+    printercontroller.cpp
 
 
 HEADERS += \
@@ -37,7 +38,8 @@ HEADERS += \
     calibrationwidget.h \
     calibrationencoder.h \
     scannerconfig.h \
-    shootcomposer.h
+    shootcomposer.h \
+    printercontroller.h
 
 FORMS += \
         mainwindow.ui
