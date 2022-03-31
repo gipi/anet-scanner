@@ -16,7 +16,9 @@ $ python anet_scan.py <serial device path> <width in mm> <height in mm>
 I advice to move manually the printer's head and position it so that the microscope
 is at the lower left. The scan is done one columns at times, from the left to the right.
 
-the resulting images are in the ``shoots/`` directory.
+Orient the camera such that mimic the actual orientation the printer is going to move.
+
+The resulting images are in the ``shoots/`` directory.
 
 ```
 $ v4l2-ctl -d /dev/video0 --list-formats-ext
@@ -70,6 +72,10 @@ but my brain is uncapable of using this program.
 
 The only reliable way I found is using [Imagej](ImageJ.net) via [Fiji](https://imagej.net/software/fiji/):
 it has a stitching plugin that works pretty good.
+
+This is a working configuration for the format the script saves the images
+
+![](stitching-configuration.png)
 
 https://forum.image.sc/t/is-there-a-way-to-run-fijis-stitching-from-a-script/11846/2
 https://github.com/fmi-faim/imagej-scripts/blob/d9ffd7c9895f43d06749ba16633d70f716af5079/Stitch_ND_File_MIPs_With_STG_Info.groovy#L336-L382
