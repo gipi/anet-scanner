@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 TODO: try https://github.com/duanhongyi/pyv4l2
 '''
+import argparse
+import pathlib
 import sys
-import v4l2
+# import v4l2
 import os
 import logging
 import pygame
@@ -13,21 +15,18 @@ from pygame.locals import *
 import time
 import serial
 import struct
+import tqdm
+import anet
 
 
 SLEEP_BEFORE = 1
 SLEEP_AFTER = 1
-STEP = 2
+
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-
-pygame.init()
-pygame.camera.init()
-
-pcb_size = (int(sys.argv[2]), int(sys.argv[3]))
 
 class VideoCapture(object):
     '''
@@ -101,32 +100,44 @@ class VideoCapture(object):
             logger.info(fcntl.ioctl(self.vd, v4l2.VIDIOC_DQBUF, self.buf))
 
 # http://www.pygame.org/docs/tut/CameraIntro.html
-class Capture(object):
+class Capture:
     '''
     This captures frames using the pygame's API.
     '''
-    def __init__(self):
-        self.size = (640,480)
+    def __init__(self, video=None, resolution=None):
+        self.size = resolution or (640, 480)
         # create a display surface. standard pygame stuff
         self.display = pygame.display.set_mode(self.size, 0)
 
         # this is the same as what we saw before
         self.clist = pygame.camera.list_cameras()
+
         if not self.clist:
             raise ValueError("Sorry, no cameras detected.")
-        self.cam = pygame.camera.Camera(self.clist[0], self.size)
+
+        video = video or self.clist[0]
+
+        self.cam = pygame.camera.Camera(video, self.size)
         self.cam.start()
 
         # create a surface to capture to.  for performance purposes
         # bit depth is the same as that of the display surface.
         self.snapshot = pygame.surface.Surface(self.size, 0, self.display)
 
-    def save_frame(self, filepath):
+    def wait(self, count=5):
+        """Wait a couple of seconds grabbing images"""
+        for _ in range(count):
+            self.get_snapshot()
+
+    def get_snapshot(self):
         # if you don't want to tie the framerate to the camera, you can check
         # if the camera has an image ready.  note that while this works
         # on most cameras, some will never return true.
         #if self.cam.query_image():
-        self.snapshot = self.cam.get_image(self.snapshot)
+        return self.cam.get_image(self.snapshot)
+
+    def save_frame(self, filepath):
+        self.snapshot = self.get_snapshot()
 
         # blit it to the display surface.  simple!
         self.display.blit(self.snapshot, (0,0))
@@ -146,9 +157,9 @@ class Capture(object):
             self.get_and_flip()
 
 def read_until_ok(s):
-    lines = ""
+    lines = b""
     msg = None
-    while msg != 'ok\n':
+    while msg != b'ok\n':
         msg = s.readline()
 
         logger.debug('read_until_ok:%s' % repr(msg))
@@ -157,54 +168,126 @@ def read_until_ok(s):
 
     return lines.rstrip()
 
-#cam = VideoCapture('/dev/video0')
-#cam.save_frame('miao')
-cam = Capture()
 
-# open the serial port
-device_path = sys.argv[1]
-baudrate = 250000
+def argparse_size(value):
+    x, y = value.split("x")
 
-fd = os.open(device_path, os.O_RDWR)
-#printer = os.fdopen(fd, "ra")
+    return int(x), int(y)
 
-set_special_baudrate(fd, baudrate)
 
-printer = serial.Serial(device_path, 250000)
+def parse_args():
+    args = argparse.ArgumentParser(description='Scan PCB')
 
-# give the webcam to adjust the brightness and focus
-time.sleep(5)
+    args.add_argument('project', type=str,
+        help="None of the capture (primarly used to create `shoots_<project name>` directory)")
 
-banner = ""
-while printer.in_waiting > 0:
-    banner += printer.readline()
+    args.add_argument(
+        '--video',
+        type=str,
+        required=True,
+        help="device node of the camera")
+    args.add_argument(
+        '--printer',
+        type=str,
+        required=True,
+        help="serial port of the printer")
+    args.add_argument('--size',
+        required=True,
+        type=argparse_size,
+        help="dimensions in millimeters of the board, indicated as XxY")
+    args.add_argument('--steps',
+        required=True,
+        type=argparse_size,
+        help="steps in millimeters of the board, indicated as XxY")
+    args.add_argument('--resolution',
+        type=argparse_size,
+        help="resolution of the captured images indicated as XxY")
 
-logger.info('init: %s' % banner.rstrip())
+    return args.parse_args()
 
-for x in xrange(pcb_size[0]/STEP):
-    for y in xrange(pcb_size[1]/STEP):
+if __name__ == '__main__':
+    pygame.init()
+    pygame.camera.init()
 
-        logger.info('%d:%d' % (x, y))
-        events = pygame.event.get()
+    args = parse_args()
 
-        #raw_input('just before the G command')
-        #printer.write('M114\n')
-        printer.write('G1 X%d Y%d\n' % (x*STEP, y*STEP))
+    project_name = args.project
 
-        logger.info('Merlin:%s' % read_until_ok(printer))
-        #raw_input('just before the M400 command')
-        printer.write('M400\n') # wait until the operation is done
-        logger.info('Merlin:%s' % read_until_ok(printer))
+    path_output = pathlib.Path("shoots_{}".format(project_name))
 
-        time.sleep(SLEEP_BEFORE)
+    if not path_output.exists():
+        logger.info("creating directory %s" % str(path_output))
+        path_output.mkdir()
 
-        #raw_input('just before the photo')
-        cam.save_frame('shoots/frame_%02d_%02d.png' % (x, y))
-        cam.save_frame('shoots/frame_%02d_%02d.png' % (x, y))
-        cam.save_frame('shoots/frame_%02d_%02d.png' % (x, y))
-        time.sleep(SLEEP_AFTER)
+    if path_output.exists() and not path_output.is_dir():
+        logger.error("%s exists but is not a directory")
+        sys.exit(1)
 
-printer.write('G1 X0 Y0\n')
-printer.write('M400\n') # wait until the operation is done
-logger.info('Merlin:%s' % read_until_ok(printer))
-pygame.camera.quit()
+    pcb_size = args.size
+    cam = Capture(video=args.video, resolution=args.resolution)
+
+    # open the serial port
+    device_path = args.printer
+    baudrate = 250000
+
+    # fd = os.open(device_path, os.O_RDWR)
+
+    printer = serial.Serial(device_path, 250000)
+
+    # give the webcam to adjust the brightness and focus
+    logger.info("please wait a little bit, the camera is focusing right now :)")
+    cam.wait()
+
+    banner = b""
+    while printer.in_waiting > 0:
+        banner += printer.readline()
+
+    logger.info('init: %s' % banner.rstrip())
+
+    # set acceleration to the minimum possible to avoid board moving
+    printer.write(b"M201 X50 Y50")
+    printer.write(b"G21")  # set units to millimeters
+
+    STEP_X, STEP_Y = args.steps
+    """
+    The movements follow a matrix, first moves by X, completes a columns and moves
+    one step in the Y direction and repeats the Xs.
+    """
+    n_xs = int(pcb_size[0]/STEP_X)
+    n_ys = int(pcb_size[1]/STEP_Y)
+
+    logger.info("The process is starting: the final  matrix will be (%d, %d)" % (n_xs, n_ys))
+    logger.warning(" ##### THERE ARE NO CHECK THAT THE MOVEMENTS WILL STEP OVER THE PHYSICAL BOUNDARIES OF THE PRINTER!!!!")
+
+    # to follow the convention of xy-stitch we reverse the Y numbering
+    # so that the (0, 0) is the left-upper corner
+    for x in tqdm.tqdm(range(n_xs)):
+        for y in tqdm.tqdm(reversed(range(n_ys))):
+
+            logger.debug('x=%d y=%d' % (x, y))
+            events = pygame.event.get()
+
+            #raw_input('just before the G command')
+            #printer.write('M114\n')
+            printer.write(b'G1 X%d Y%d\n' % (x * STEP_X, ((n_ys - 1) - y) * STEP_Y))
+
+            logger.debug('Merlin:%s' % read_until_ok(printer))
+            #raw_input('just before the M400 command')
+            printer.write(b'M400\n') # wait until the operation is done
+            logger.debug('Merlin:%s' % read_until_ok(printer))
+
+            time.sleep(SLEEP_BEFORE)
+
+            #raw_input('just before the photo')
+            # FIXME: seems that without taking multiple images
+            # they are "out of focus"
+            path_frame = path_output / ('c%03d_r%03d.png' % (x, y))
+            cam.save_frame(path_frame)
+            cam.save_frame(path_frame)
+            cam.save_frame(path_frame)
+            time.sleep(SLEEP_AFTER)
+
+    printer.write(b'G1 X0 Y0\n')
+    printer.write(b'M400\n') # wait until the operation is done
+    logger.info('Merlin:%s' % read_until_ok(printer))
+    pygame.camera.quit()
